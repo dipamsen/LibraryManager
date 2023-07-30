@@ -13,15 +13,11 @@
 = Introduction
 #lorem(60)
 
-== In this paper
-#lorem(20)
-
-=== Contributions
-#lorem(40)
+Thus, we'll use the `mysql` module
 
 = Code
 
-The complete code for the project as well as this document is accessible on the GitHub repository for the project:
+The complete source code for the application as well as this document is accessible on the GitHub repository for the project:
 https://github.com/dipamsen/LibraryManager
 
 #code
