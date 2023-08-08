@@ -12,33 +12,34 @@
   set document(author: authors, title: title)
   set page(numbering: "1", number-align: center)
   set text(font: "", lang: "en", size: 1.6em)
-  show raw: it => {
-    if it.block {
-      par(text(0.8em)[#it], justify: false, linebreaks: "simple")
-    } else {
-      strong(it)
-    }
-  }
+  set text(font: "Atkinson Hyperlegible")
+  // show raw: it => {
+  //   if it.block {
+  //     par(text(0.8em)[#it], justify: false, linebreaks: "simple")
+  //   } else {
+  //     strong(it)
+  //   }
+  // }
   show link: underline
 
   // https://discord.com/channels/1054443721975922748/1057632212671025162/1105957435178496061
   // Display block code in a larger block
   // with more padding and line numbers on the left
-  show raw.where(block: true): it => {
-    set par(justify: false);
-    // the line counter
-    let boxRadius = 0.5em;
-    let detailRadius = 3pt;
-    if (it.lang != none) {
-      grid(
-        block(radius: boxRadius, fill: luma(246), width: 100%, inset: boxRadius*2.4, {
-          it
-        })
-      )
-    } else {
-      block(radius: boxRadius, fill: luma(246), width: 100%, inset: boxRadius, it)
-    }
-  }
+  // show raw.where(block: true): it => {
+  //   set par(justify: false);
+  //   // the line counter
+  //   let boxRadius = 0.5em;
+  //   let detailRadius = 3pt;
+  //   if (it.lang != none) {
+  //     grid(
+  //       block(radius: boxRadius, fill: luma(246), width: 100%, inset: boxRadius*2.4, {
+  //         it
+  //       })
+  //     )
+  //   } else {
+  //     block(radius: boxRadius, fill: luma(246), width: 100%, inset: boxRadius, it)
+  //   }
+  // }
   {
     set text(1.3em)
     v(0.6fr)

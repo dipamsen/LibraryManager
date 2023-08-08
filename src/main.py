@@ -1,4 +1,4 @@
 # Library Manager
-# Author: Dipam Sen
+# Author: Dipam Sen and Arghya Kumar
 
-print("Welcome to Library Manager")
+print("Welcome to the Library Manager")

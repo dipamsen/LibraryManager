@@ -1,2 +1,6 @@
 # generated from src files
 docs/code.typ
+
+.env
+
+__pycache__/

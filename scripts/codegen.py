@@ -7,15 +7,19 @@ import os
 
 if __name__ == "__main__":
     codes = {}
-    for root, dirs, files in os.walk("src"):
-        for filename in files:
-            if filename.endswith(".py"):
-                with open(os.path.join(root, filename), "r") as f:
-                    codes[filename] = f.read()
+    root, dirs, files = next(os.walk("src"))
+    for filename in files:
+        # if filename.endswith(".py"):
+        if filename.startswith(".env"):
+            continue
+        with open(os.path.join(root, filename), "r") as f:
+            codes[filename] = f.read()
 
-    code = "#let code = [\n\n"
+    code = """#import "@preview/codelst:1.0.0": *
+    
+#let code = [\n\n  #set text(0.7em)\n\n"""
     for filename, content in codes.items():
-        code += f"== `{filename}`\n\n```py\n{content}\n```\n\n"
+        code += f"== `{filename}`\n\n#sourcecode(numbering: none)[```{filename.rpartition('.')[-1]}\n{content}\n```]\n\n"
     code += "]"
 
     with open("docs/code.typ", "w") as f:
