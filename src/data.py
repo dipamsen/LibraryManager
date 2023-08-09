@@ -1,16 +1,15 @@
 import mysql.connector
 from tabulate import tabulate
-import random
 
 db = mysql.connector.connect(
-    user="root", host="localhost", passwd="libraryroot123", database="library"
+    user="root", host="localhost", passwd="dipam2006", database="library"
 )
 cursor = db.cursor()
 cursor.execute("USE library")
 
 
-# Raise error in SQL even though there is no error
-def RaiseSQLError(query, values=None):
+# Try to execute SQL command
+def TrySQLCommand(query, values=None):
     cursor.execute(query, values)
     result = cursor.fetchall()
     if cursor.rowcount == 0:
@@ -19,7 +18,7 @@ def RaiseSQLError(query, values=None):
 
 
 # check for valid ISBN number
-def ValidISBN(isbn):
+def ValidateISBN(isbn):
     # Remove hyphens and spaces
     isbn = isbn.replace("-", "").replace(" ", "")
 
@@ -49,36 +48,36 @@ def ValidISBN(isbn):
 
 # Edit Books Table Functions
 # Replace Books
-def ReplaceBooks(oISBN, nquantity, nTITLE, nAUTHOR, nISBN):
-    if ValidISBN(oISBN) == False:
+def ReplaceBook(oISBN, nQuantity, nTITLE, nAUTHOR, nISBN, nGenre):
+    if ValidateISBN(oISBN) == False:
         print("INVALID ISBN NUMBER!!")
         return 1
     try:
         deletebook = "DELETE FROM books WHERE ISBN= %s"
-        RaiseSQLError(deletebook, (oISBN,))
+        TrySQLCommand(deletebook, (oISBN,))
     except ValueError:
         db.rollback()
         return 1
-    newbooks = "INSERT INTO books (quantity,title,author,isbn) VALUES(%s,%s,%s,%s)"
-    cursor.execute(newbooks, (nquantity, nTITLE, nAUTHOR, nISBN))
+    newbooks = "INSERT INTO books (quantity, title, author, isbn, genre) VALUES(%s, %s, %s, %s, %s)"
+    cursor.execute(newbooks, (nQuantity, nTITLE, nAUTHOR, nISBN, nGenre))
     db.commit()
 
 
 # Add Books
-def AddBooks(nquantity, nTITLE, nAUTHOR, nISBN):
-    newbooks = "INSERT INTO books(quantity,title,author,isbn) VALUES(%s,%s,%s,%s)"
-    cursor.execute(newbooks, (nquantity, nTITLE, nAUTHOR, nISBN))
+def AddBook(nQuantity, nTITLE, nAUTHOR, nISBN, nGenre):
+    newbooks = "INSERT INTO books(quantity, title, author, isbn, genre) VALUES(%s, %s, %s, %s, %s)"
+    cursor.execute(newbooks, (nQuantity, nTITLE, nAUTHOR, nISBN, nGenre))
     db.commit()
 
 
 # Remove Books
-def RemoveBooks(ISBN):
-    if ValidISBN(ISBN) == False:
+def RemoveBook(ISBN):
+    if ValidateISBN(ISBN) == False:
         print("INVALID ISBN NUMBER!!")
         return 1
     try:
         deletebook = "DELETE FROM books WHERE isbn= %s;"
-        RaiseSQLError(deletebook, (ISBN,))
+        TrySQLCommand(deletebook, (ISBN,))
     except ValueError:
         db.rollback()
         return 1
@@ -87,33 +86,33 @@ def RemoveBooks(ISBN):
 
 # Searching Books
 # By ISBN
-def SearchBook_ISBN(ISBN):
-    if ValidISBN(ISBN) == False:
+def SearchBookByISBN(ISBN):
+    if ValidateISBN(ISBN) == False:
         print("INVALID ISBN NUMBER!!")
         return 1
     try:
         SearchBook = "SELECT * FROM books WHERE isbn= %s;"
-        return RaiseSQLError(SearchBook, (ISBN,))
+        return TrySQLCommand(SearchBook, (ISBN,))
     except ValueError:
         db.rollback()
         return 1
 
 
 # By Author
-def SearchBook_Author(Author):
+def SearchBookByAuthor(Author):
     try:
         SearchBook = "SELECT * FROM books WHERE author LIKE %s"
-        return RaiseSQLError(SearchBook, ("%" + Author + "%",))
+        return TrySQLCommand(SearchBook, ("%" + Author + "%",))
     except ValueError:
         db.rollback()
         return 1
 
 
 # By Title
-def SearchBook_Title(Title):
+def SearchBookByTitle(Title):
     try:
         SearchBook = "SELECT * FROM books WHERE title LIKE %s"
-        return RaiseSQLError(SearchBook, ("%" + Title + "%",))
+        return TrySQLCommand(SearchBook, ("%" + Title + "%",))
     except ValueError:
         db.rollback()
         return 1
@@ -123,23 +122,23 @@ genres = ["Fiction", "Non Fiction"]
 
 
 # By Genre
-def SearchBook_Genre(Genre):
+def SearchBookByGenre(Genre):
     if Genre not in genres:
         print("INVALID GENRE!!")
         return 1
     try:
         SearchBook = "SELECT * FROM books WHERE genre LIKE %s"
-        return RaiseSQLError(SearchBook, (Genre,))
+        return TrySQLCommand(SearchBook, (Genre,))
     except ValueError:
         db.rollback()
         return 1
 
 
-def Editbooks(ISBN):
-    if ValidISBN(ISBN) == False:
+def EditBook(ISBN):
+    if ValidateISBN(ISBN) == False:
         print("INVALID ISBN NUMBER!!")
         return 1
-    Search = SearchBook_ISBN(ISBN)
+    Search = SearchBookByISBN(ISBN)
     if Search == 1:
         return 1
     else:
@@ -148,12 +147,13 @@ def Editbooks(ISBN):
         print("(2) ---> Book Author")
         print("(3) ---> Book Title")
         print("(4) ---> Quantity")
-        print("(5) ---> Remove book")
+        print("(5) ---> Genre")
+        print("(6) ---> Remove book")
         option = int(input("Enter OPTION NUMBER of what you want to edit : "))
-        if option >= 1 and option <= 5:
+        if option >= 1 and option <= 6:
             if option == 1:
                 id = input("ENTER THE NEW ISBN NUMBER OF BOOK : ")
-                if ISBN != id and ValidISBN(id):
+                if ISBN != id and ValidateISBN(id):
                     query = "UPDATE books SET isbn= %s WHERE isbn=%s"
                     cursor.execute(
                         query,
@@ -199,18 +199,29 @@ def Editbooks(ISBN):
                 )
                 db.commit()
             elif option == 5:
-                RemoveBooks(ISBN)
+                genre = input("ENTER THE NEW GENRE OF BOOK : ")
+                query = "UPDATE books SET genre= %s WHERE isbn=%s"
+                cursor.execute(
+                    query,
+                    (
+                        genre,
+                        ISBN,
+                    ),
+                )
+                db.commit()
+            elif option == 6:
+                RemoveBook(ISBN)
 
 
 # Issue Books to Patron and updating the return status
-def Issue_Books(ISBN, Unique_ID):
-    if ValidISBN(ISBN) == False:
+def IssueBook(ISBN, ID):
+    if ValidateISBN(ISBN) == False:
         print("INVALID ISBN NUMBER!!")
         return 1
-    if SearchBook_ISBN(ISBN) == 1:
+    if SearchBookByISBN(ISBN) == 1:
         print("ISBN number not found. Check and Try Again!")
         return 1
-    if SearchPatron_ID(Unique_ID) == 1:
+    if SearchPatronByID(ID) == 1:
         print("Patron ID not found. Check and Try Again!")
         return 1
     query = "UPDATE books SET quantity = quantity - 1 WHERE isbn = %s AND quantity >= 1"
@@ -218,15 +229,10 @@ def Issue_Books(ISBN, Unique_ID):
     if cursor.rowcount == 1:
         db.commit()
 
-        id = random.randint(10000000, 99999999)
-        issue = "INSERT INTO issues (id, book_isbn, patron_id, issue_date, return_date) VALUES (%s, %s, %s, CURDATE(), DATE(CURDATE() + 7))"
-        cursor.execute(issue, (id, ISBN, Unique_ID))
-
-        print("Book issued successfully!")
-
-        returnstatus = "UPDATE patrons SET return_status = FALSE WHERE id = %s"
-        cursor.execute(returnstatus, (Unique_ID,))
+        issue = "INSERT INTO transactions (book_isbn, patron_id, issue_date, return_date) VALUES (%s, %s, CURDATE(), DATE(CURDATE() + 7))"
+        cursor.execute(issue, (ISBN, ID))
         db.commit()
+        print("Book issued successfully!")
     else:
         db.rollback()
         print(
@@ -235,32 +241,39 @@ def Issue_Books(ISBN, Unique_ID):
         return 1
 
 
-def return_books(ISBN, Unique_ID):
-    if ValidISBN(ISBN) == False:
+def ReturnBook(ISBN, ID):
+    if ValidateISBN(ISBN) == False:
         print("INVALID ISBN NUMBER!!")
         return 1
-    if SearchBook_ISBN(ISBN) == 1:
+    if SearchBookByISBN(ISBN) == 1:
         print("ISBN number not found. Check and Try Again!")
         return 1
-    if SearchPatron_ID(Unique_ID) == 1:
+    if SearchPatronByID(ID) == 1:
         print("Patron ID not found. Check and Try Again!")
         return 1
+    trans = "UPDATE transactions SET return_date = CURDATE(), returned = TRUE WHERE book_isbn = %s AND patron_id = %s AND return_date IS NULL AND returned = FALSE"
+    cursor.execute(trans, (ISBN, ID))
+    if cursor.rowcount == 0:
+        print("No book issued to this patron with this ISBN number!")
+        return 1
+
+    db.commit()
+
     query = "UPDATE books SET quantity = quantity + 1 WHERE ISBN = %s"
     cursor.execute(query, (ISBN,))
     db.commit()
 
-    # TODO: update "returned" inside issues table
     print("Book returned successfully!")
 
 
-def AddPatron(Unique_ID, Email, Patron_Name, Subcription_Date):
+def AddPatron(ID, Email, Patron_Name, Subcription_Date):
     newpatron = (
         "INSERT INTO patrons (id, email, name, subscription_date) VALUES(%s,%s,%s,%s)"
     )
     cursor.execute(
         newpatron,
         (
-            Unique_ID,
+            ID,
             Email,
             Patron_Name,
             Subcription_Date,
@@ -269,18 +282,18 @@ def AddPatron(Unique_ID, Email, Patron_Name, Subcription_Date):
     db.commit()
 
 
-def RemovePatron(Unique_ID):
+def RemovePatron(ID):
     try:
         deletepatron = "DELETE FROM patrons WHERE id= %s;"
-        RaiseSQLError(deletepatron, (Unique_ID,))
+        TrySQLCommand(deletepatron, (ID,))
     except ValueError:
         db.rollback()
         return 1
     db.commit()
 
 
-def EditPatron(Unique_ID):
-    Search = SearchPatron_ID(Unique_ID)
+def EditPatron(ID):
+    Search = SearchPatronByID(ID)
     if Search == 1:
         return 1
     else:
@@ -288,19 +301,19 @@ def EditPatron(Unique_ID):
         print("(1) ---> Patron ID number")
         print("(2) ---> Patron Email")
         print("(3) ---> Patron Name")
-        print("(4) ---> RENEW Patron Subcription Date")
+        print("(4) ---> Renew Patron Subcription Date")
         print("(5) ---> Remove Patron")
         option = int(input("Enter OPTION NUMBER of what you want to edit : "))
         if option >= 1 and option <= 5:
             if option == 1:
                 id = input("ENTER THE NEW 8-DIGIT UNIQUE ID OF PATRON : ")
-                if Unique_ID != id and len(id) == 8:
+                if ID != id and len(id) == 8:
                     query = "UPDATE patron SET id= %s WHERE id=%s"
                     cursor.execute(
                         query,
                         (
                             id,
-                            Unique_ID,
+                            ID,
                         ),
                     )
                     db.commit()
@@ -315,7 +328,7 @@ def EditPatron(Unique_ID):
                         "UPDATE patron SET email= %s WHERE id= %s",
                         (
                             Email,
-                            Unique_ID,
+                            ID,
                         ),
                     )
                     db.commit()
@@ -329,38 +342,38 @@ def EditPatron(Unique_ID):
                     "UPDATE patrons SET name= %s WHERE id= %s",
                     (
                         Name,
-                        Unique_ID,
+                        ID,
                     ),
                 )
                 db.commit()
             elif option == 4:
                 query = "UPDATE patrons SET subscription_date=DATE(NOW()) WHERE id=%s"
-                cursor.execute(query, (Unique_ID,))
+                cursor.execute(query, (ID,))
                 db.commit()
             elif option == 5:
-                RemovePatron(Unique_ID)
+                RemovePatron(ID)
 
 
-def SearchPatron_ID(Unique_ID):
+def SearchPatronByID(ID):
     try:
         SearchPatron = "SELECT * FROM patrons WHERE id= %s"
-        return RaiseSQLError(SearchPatron, (Unique_ID,))
+        return TrySQLCommand(SearchPatron, (ID,))
     except ValueError:
         db.rollback()
         return 1
 
 
-def SearchPatron_NAME(Patron_Name):
+def SearchPatronByName(Patron_Name):
     try:
         SearchPatron = "SELECT * FROM patrons WHERE name LIKE %s"
-        return RaiseSQLError(SearchPatron, ("%" + Patron_Name + "%",))
+        return TrySQLCommand(SearchPatron, ("%" + Patron_Name + "%",))
     except ValueError:
         db.rollback()
         return 1
 
 
-def Checkouts():
-    query = "SELECT * FROM issues"
+def ViewTransactions():
+    query = "SELECT * FROM transactions"
     cursor.execute(query)
     # Fetch column names
     columns = [desc[0] for desc in cursor.description]
@@ -370,26 +383,20 @@ def Checkouts():
     print(tabulate(data, headers=columns, tablefmt="pretty"))
 
 
-def Patron():
-    query = 'SELECT id "ID", name "Name", email "Email ID", subscription_date "Subscribed on", IF(return_status, "Yes", "No") "Returned?" FROM patrons'
+def ViewPatrons():
+    query = """SELECT patrons.id "ID", name "Name", email "Email ID", subscription_date "Subscribed on", COUNT(transactions.id) "Unreturned Books" 
+FROM patrons 
+LEFT JOIN transactions ON patrons.id = transactions.patron_id AND transactions.returned = false 
+GROUP BY patrons.id, email, name, subscription_date;"""
     cursor.execute(query)
     columns = [desc[0] for desc in cursor.description]
     data = cursor.fetchall()
     print(tabulate(data, headers=columns, tablefmt="pretty"))
 
 
-def GenerateBookReport():
+def ViewBooks():
     query = "SELECT * FROM books"
     cursor.execute(query)
     columns = [desc[0] for desc in cursor.description]
     data = cursor.fetchall()
     print(tabulate(data, headers=columns, tablefmt="pretty"))
-
-
-# Issue_Books("9780060838676", "dgiidgsd")
-
-
-# AddPatron("29839329", "python@main.com", "Python", "2021-05-01")
-# RemovePatron("dgiidgsd")
-# Editbooks("9780060838676")
-# EditPatron("29839329")
