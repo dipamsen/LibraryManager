@@ -1,18 +1,12 @@
-import os
-from dotenv import load_dotenv
-from tabulate import tabulate
 import mysql.connector
+from tabulate import tabulate
 import random
 
-load_dotenv()
-
-host = os.getenv("DATABASE_HOST")
-user = os.getenv("DATABASE_USER")
-pw = os.getenv("DATABASE_PASSWORD")
-
-
-db = mysql.connector.connect(host=host, user=user, passwd=pw, database="library")
+db = mysql.connector.connect(
+    user="root", host="localhost", passwd="libraryroot123", database="library"
+)
 cursor = db.cursor()
+cursor.execute("USE library")
 
 
 # Raise error in SQL even though there is no error
