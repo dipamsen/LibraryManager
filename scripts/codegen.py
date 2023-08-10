@@ -8,6 +8,7 @@ import os
 if __name__ == "__main__":
     codes = {}
     root, dirs, files = next(os.walk("src"))
+    files = ["data.py", "db.sql"]
     for filename in files:
         # if filename.endswith(".py"):
         if filename.startswith(".env"):
@@ -17,7 +18,7 @@ if __name__ == "__main__":
 
     code = """#import "@preview/codelst:1.0.0": *
     
-#let code = [\n\n  #set text(0.7em)\n\n"""
+#let code = [\n\n  #set text(0.67em)\n\n"""
     for filename, content in codes.items():
         code += f"== `{filename}`\n\n#sourcecode(numbering: none)[```{filename.rpartition('.')[-1]}\n{content}\n```]\n\n"
     code += "]"

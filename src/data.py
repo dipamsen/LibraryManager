@@ -49,12 +49,12 @@ def ValidateISBN(isbn):
 # Edit Books Table Functions
 # Replace Books
 def ReplaceBook(oISBN, nQuantity, nTITLE, nAUTHOR, nISBN, nGenre):
-    if ValidateISBN(oISBN) == False:
+    if ValidateISBN(nISBN) == False:
         print("INVALID ISBN NUMBER!!")
         return 1
     try:
         deletebook = "DELETE FROM books WHERE ISBN= %s"
-        TrySQLCommand(deletebook, (oISBN,))
+        cursor.execute(deletebook, (oISBN,))
     except ValueError:
         db.rollback()
         return 1
@@ -65,31 +65,33 @@ def ReplaceBook(oISBN, nQuantity, nTITLE, nAUTHOR, nISBN, nGenre):
 
 # Add Books
 def AddBook(nQuantity, nTITLE, nAUTHOR, nISBN, nGenre):
-    newbooks = "INSERT INTO books(quantity, title, author, isbn, genre) VALUES(%s, %s, %s, %s, %s)"
-    cursor.execute(newbooks, (nQuantity, nTITLE, nAUTHOR, nISBN, nGenre))
-    db.commit()
+    if ValidateISBN(nISBN) == False:
+        print("INVALID ISBN NUMBER!!")
+        return 1
+    try:
+        newbooks = "INSERT INTO books(quantity, title, author, isbn, genre) VALUES(%s, %s, %s, %s, %s)"
+        cursor.execute(newbooks, (nQuantity, nTITLE, nAUTHOR, nISBN, nGenre))
+        db.commit()
+    except ValueError:
+        db.rollback()
+        return 1
 
 
 # Remove Books
 def RemoveBook(ISBN):
-    if ValidateISBN(ISBN) == False:
-        print("INVALID ISBN NUMBER!!")
-        return 1
     try:
         deletebook = "DELETE FROM books WHERE isbn= %s;"
         TrySQLCommand(deletebook, (ISBN,))
+        db.commit()
     except ValueError:
+        print("ISBN number not found. Check and Try Again!")
         db.rollback()
         return 1
-    db.commit()
 
 
 # Searching Books
 # By ISBN
 def SearchBookByISBN(ISBN):
-    if ValidateISBN(ISBN) == False:
-        print("INVALID ISBN NUMBER!!")
-        return 1
     try:
         SearchBook = "SELECT * FROM books WHERE isbn= %s;"
         return TrySQLCommand(SearchBook, (ISBN,))
@@ -118,14 +120,8 @@ def SearchBookByTitle(Title):
         return 1
 
 
-genres = ["Fiction", "Non Fiction"]
-
-
 # By Genre
 def SearchBookByGenre(Genre):
-    if Genre not in genres:
-        print("INVALID GENRE!!")
-        return 1
     try:
         SearchBook = "SELECT * FROM books WHERE genre LIKE %s"
         return TrySQLCommand(SearchBook, (Genre,))
@@ -135,13 +131,17 @@ def SearchBookByGenre(Genre):
 
 
 def EditBook(ISBN):
-    if ValidateISBN(ISBN) == False:
-        print("INVALID ISBN NUMBER!!")
-        return 1
     Search = SearchBookByISBN(ISBN)
     if Search == 1:
         return 1
     else:
+        print(
+            tabulate(
+                Search,
+                headers=["ISBN", "Title", "Author", "Quantity", "Genre"],
+                tablefmt="pretty",
+            )
+        )
         print("OPTIONS : ")
         print("(1) ---> ISBN number")
         print("(2) ---> Book Author")
@@ -227,12 +227,15 @@ def IssueBook(ISBN, ID):
     query = "UPDATE books SET quantity = quantity - 1 WHERE isbn = %s AND quantity >= 1"
     cursor.execute(query, (ISBN,))
     if cursor.rowcount == 1:
-        db.commit()
-
-        issue = "INSERT INTO transactions (book_isbn, patron_id, issue_date, return_date) VALUES (%s, %s, CURDATE(), DATE(CURDATE() + 7))"
-        cursor.execute(issue, (ISBN, ID))
-        db.commit()
-        print("Book issued successfully!")
+        try:
+            issue = "INSERT INTO transactions (book_isbn, patron_id, issue_date, due_date) VALUES (%s, %s, CURDATE(), DATE(CURDATE() + 7))"
+            cursor.execute(issue, (ISBN, ID))
+            db.commit()
+            print("Book issued successfully!")
+        except:
+            db.rollback()
+            print("Book issue failed!")
+            return 1
     else:
         db.rollback()
         print(
@@ -297,6 +300,13 @@ def EditPatron(ID):
     if Search == 1:
         return 1
     else:
+        print(
+            tabulate(
+                Search,
+                headers=["ID", "Email", "Name", "Subscription Date"],
+                tablefmt="psql",
+            )
+        )
         print("OPTIONS : ")
         print("(1) ---> Patron ID number")
         print("(2) ---> Patron Email")
@@ -383,6 +393,14 @@ def ViewTransactions():
     print(tabulate(data, headers=columns, tablefmt="pretty"))
 
 
+def ViewTransactionsPending():
+    query = "SELECT * FROM transactions WHERE returned = false"
+    cursor.execute(query)
+    columns = [desc[0] for desc in cursor.description]
+    data = cursor.fetchall()
+    print(tabulate(data, headers=columns, tablefmt="pretty"))
+
+
 def ViewPatrons():
     query = """SELECT patrons.id "ID", name "Name", email "Email ID", subscription_date "Subscribed on", COUNT(transactions.id) "Unreturned Books" 
 FROM patrons 
@@ -400,3 +418,9 @@ def ViewBooks():
     columns = [desc[0] for desc in cursor.description]
     data = cursor.fetchall()
     print(tabulate(data, headers=columns, tablefmt="pretty"))
+
+
+def Query(query, values=None):
+    cursor.execute(query, values)
+    data = cursor.fetchall()
+    return data, [desc[0] for desc in cursor.description]
