@@ -27,7 +27,19 @@ if __name__ == "__main__":
 #let code = [\n\n  #set text(0.67em)\n\n"""
     for filename, content in codes.items():
         code += f"== `{filename}` <{slugify(filename)}> \n\n#sourcecode(numbering: none)[```{filename.rpartition('.')[-1]}\n{reptabs(content)}\n```]\n\n"
+        code += f"\n\n#pagebreak(weak: true)\n"
     code += "]"
+
+    code += "\n\n"
+    code += '''
+#let screenshots = [
+  #let images = ("pass", "adminfn", "searchbook", "viewbooks", "viewtrans", "patronfn", "viewissued")
+
+  #for img in images {
+    image("screenshots/" + img + ".png", fit: "contain")
+  }
+]
+'''
 
     with open("docs/code.typ", "w") as f:
         f.write(code)

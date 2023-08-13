@@ -32,7 +32,7 @@ def ValidateISBN(isbn):
             )
         else:
             isbn_sum = sum(int(digit) * (i + 1) for i, digit in enumerate(isbn))
-        return isbn_sum % 11 == 0
+        return isbn if isbn_sum % 11 == 0 else False
 
     # ISBN-13
     elif len(isbn) == 13:
@@ -41,7 +41,7 @@ def ValidateISBN(isbn):
         isbn_sum = sum(
             int(digit) * (1 if i % 2 == 0 else 3) for i, digit in enumerate(isbn)
         )
-        return isbn_sum % 10 == 0
+        return isbn if isbn_sum % 10 == 0 else False
 
     return False
 
@@ -65,12 +65,13 @@ def ReplaceBook(oISBN, nQuantity, nTITLE, nAUTHOR, nISBN, nGenre):
 
 # Add Books
 def AddBook(nQuantity, nTITLE, nAUTHOR, nISBN, nGenre):
-    if ValidateISBN(nISBN) == False:
+    vISBN = ValidateISBN(nISBN)
+    if vISBN == False:
         print("INVALID ISBN NUMBER!!")
         return 1
     try:
         newbooks = "INSERT INTO books(quantity, title, author, isbn, genre) VALUES(%s, %s, %s, %s, %s)"
-        cursor.execute(newbooks, (nQuantity, nTITLE, nAUTHOR, nISBN, nGenre))
+        cursor.execute(newbooks, (nQuantity, nTITLE, nAUTHOR, vISBN, nGenre))
         db.commit()
     except ValueError:
         db.rollback()
@@ -79,9 +80,13 @@ def AddBook(nQuantity, nTITLE, nAUTHOR, nISBN, nGenre):
 
 # Remove Books
 def RemoveBook(ISBN):
+    vISBN = ValidateISBN(ISBN)
+    if vISBN == False:
+        print("INVALID ISBN NUMBER!!")
+        return 1
     try:
         deletebook = "DELETE FROM books WHERE isbn= %s;"
-        TrySQLCommand(deletebook, (ISBN,))
+        cursor.execute(deletebook, (vISBN,))
         db.commit()
     except ValueError:
         print("ISBN number not found. Check and Try Again!")
@@ -131,14 +136,14 @@ def SearchBookByGenre(Genre):
 
 
 def EditBook(ISBN):
-    Search = SearchBookByISBN(ISBN)
+    Search, columns = SearchBookByISBN(ISBN)
     if Search == 1:
         return 1
     else:
         print(
             tabulate(
                 Search,
-                headers=["ISBN", "Title", "Author", "Quantity", "Genre"],
+                headers=columns,
                 tablefmt="pretty",
             )
         )
@@ -153,12 +158,13 @@ def EditBook(ISBN):
         if option >= 1 and option <= 6:
             if option == 1:
                 id = input("ENTER THE NEW ISBN NUMBER OF BOOK : ")
-                if ISBN != id and ValidateISBN(id):
+                vID = ValidateISBN(id)
+                if ISBN != id and vID:
                     query = "UPDATE books SET isbn= %s WHERE isbn=%s"
                     cursor.execute(
                         query,
                         (
-                            id,
+                            vID,
                             ISBN,
                         ),
                     )
@@ -215,9 +221,6 @@ def EditBook(ISBN):
 
 # Issue Books to Patron and updating the return status
 def IssueBook(ISBN, ID):
-    if ValidateISBN(ISBN) == False:
-        print("INVALID ISBN NUMBER!!")
-        return 1
     if SearchBookByISBN(ISBN) == 1:
         print("ISBN number not found. Check and Try Again!")
         return 1
@@ -230,14 +233,13 @@ def IssueBook(ISBN, ID):
     )
     cursor.execute(check1, (ID,))
     if cursor.fetchone()[0] >= 3:
-        print(
-            "PATRON HAS ALREADY ISSUED 3 BOOKS! \nPLEASE RETURN A BOOK AND TRY AGAIN!"
-        )
+        print("PATRON HAS ALREADY ISSUED 3 BOOKS!")
         return 1
 
     # check if patron currently has this book
     check2 = "SELECT * FROM transactions WHERE patron_id = %s AND book_isbn = %s AND returned IS FALSE"
     cursor.execute(check2, (ID, ISBN))
+    cursor.fetchall()
     if cursor.rowcount > 0:
         print("PATRON HAS ALREADY ISSUED THIS BOOK!")
         return 1
@@ -412,7 +414,7 @@ def ViewTransactions():
 
 
 def ViewTransactionsPending():
-    query = "SELECT * FROM transactions WHERE returned = false"
+    query = 'SELECT t.id "ID", b.title "Book", p.name "Issued By", t.issue_date "Issued On", t.due_date "Due On", IFNULL(t.return_date, "Not Returned") "Returned On" FROM transactions t JOIN books b ON t.book_isbn = b.isbn JOIN patrons p ON t.patron_id = p.id WHERE t.returned = FALSE ORDER BY t.book_isbn, t.issue_date ;'
     cursor.execute(query)
     columns = [desc[0] for desc in cursor.description]
     data = cursor.fetchall()

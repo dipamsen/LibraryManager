@@ -1,5 +1,5 @@
 #import "template.typ": *
-#import "code.typ": code
+#import "code.typ": code, screenshots
 #import "@preview/codelst:1.0.0": sourcecode
 
 
@@ -12,6 +12,7 @@
   ),
   date: "2023",
 )
+
 
 = Introduction
 
@@ -39,6 +40,11 @@ The following are the functional requirements for a library management system:
 #let Books = field(`Books`)
 #let Patrons = field(`Patrons`)
 #let Transactions = field(`Transactions`)
+
+
+#let Book = field(`Book`)
+#let Patron = field(`Patron`)
+#let Transaction = field(`Transaction`)
 
 = Database Design
 // #image("image.png")
@@ -108,57 +114,95 @@ def ViewTransactions():
 
 These functions use the `mysql.connecter` library to connect to the MySQL database and query the database.
 
-The main driver code is present inside main.py, which uses an interesting strategy to dynamically manage the menu-based interface for admin functions. Instead of hardcoding separate sections for each menu option, the code defines a list containing the display text of the option and its corresponding function. 
+The main frontend code is present inside #link(<main-py>, field(strong(`main.py`), col: black)), which creates a menu based UI (within the terminal) for interacting with these database functions.
 
 #figure(sourcecode()[
   ```py
 # main.py
-actions = [
-    {
-        "text": "Issue Books", 
-        "value": db.IssueBook
-    },
-    {
-        "text": "Return Books", 
-        "value": db.ReturnBook
-    },
-    {
-        "text": "View Transactions", 
-        "value": db.ViewTransactions
-    },
-    ...
-]
+
+print("Welcome to the Library Manager!!")
+print("(1) ADMIN")
+print("(2) USER")
+choice = int(input("Enter your choice: "))
+
+if choice == 1:
+  # admin
+  input("Enter password")
+  ...
+elif choice == 2:
+  # patron
+  input("Enter patron ID")
+  ...
+
   ```
-], caption: "Mapping menu options to database functions")
+], caption: "Frontend code for interacting with the database")
 
-During runtime, the program continuously presents the user with the menu choices, and upon selection, it uses the *`inspect`* module to determine the parameters required by the chosen function. It then dynamically prompts the user for the necessary input, eliminating the need for repetitive code for user input handling. 
+Inside each if block, we list all possible options for the user and once again ask for the choice, which then continuously prompts the user for nested choices. At the innermost level, the database functions are called.
 
-For example, in case of the `ReturnBook` function, the *`inspect.getfullargspec`* can determine its parameters - `isbn` and `patron_id`. Using this, the driver code can dynamically create user inputs requesting for these values, and then call the function, showing the output.
-
-#figure(sourcecode[
+#figure(sourcecode()[
   ```py
-  # main.py
-  choice = {"text": "Return Books", "value": db.ReturnBook} # choice selected by the user
+# main.py
+while True: 
+  opt = int(input("\tEnter your choice: "))
+  ...
+  elif opt == 5: # return book
+    ISBN = input("\t\tISBN : ")
+    ID = input("\t\tID of the patron: ")
+    db.ReturnBook(ISBN, ID)
+    print("\t\tBook returned successfully!")
 
-  # the function to execute
-  func = choice["value"] 
-
-  # gets list of arguments to the function
-  # ["isbn", "patron_id"]
-  args = inspect.getfullargspec(func).args 
-
-  params = []
-  for arg in args:
-    params.append(input(f"Enter {arg}: "))
-
-  # call the function with the provided arguments
-  func(*params)
-  
   ```
-], caption: "Dynamically determining function parameters")
+], caption: "Calling database functions in the frontend")
+
+// #figure(sourcecode()[
+//   ```py
+// # main.py
+// actions = [
+//     {
+//         "text": "Issue Books", 
+//         "value": db.IssueBook
+//     },
+//     {
+//         "text": "Return Books", 
+//         "value": db.ReturnBook
+//     },
+//     {
+//         "text": "View Transactions", 
+//         "value": db.ViewTransactions
+//     },
+//     ...
+// ]
+//   ```
+// ], caption: "Mapping menu options to database functions")
+
+// During runtime, the program continuously presents the user with the menu choices, and upon selection, it uses the *`inspect`* module to determine the parameters required by the chosen function. It then dynamically prompts the user for the necessary input, eliminating the need for repetitive code for user input handling. 
+
+// For example, in case of the `ReturnBook` function, the *`inspect.getfullargspec`* can determine its parameters - `isbn` and `patron_id`. Using this, the driver code can dynamically create user inputs requesting for these values, and then call the function, showing the output.
+
+// #figure(sourcecode[
+//   ```py
+//   # main.py
+//   choice = {"text": "Return Books", "value": db.ReturnBook} # choice selected by the user
+
+//   # the function to execute
+//   func = choice["value"] 
+
+//   # gets list of arguments to the function
+//   # ["isbn", "patron_id"]
+//   args = inspect.getfullargspec(func).args 
+
+//   params = []
+//   for arg in args:
+//     params.append(input(f"Enter {arg}: "))
+
+//   # call the function with the provided arguments
+//   func(*params)
+  
+//   ```
+// ], caption: "Dynamically determining function parameters")
 
 
-This strategy offers a flexible and organized way to interact with various admin functions while maintaining clarity and reducing the overall complexity of the driver code.
+// This strategy offers a flexible and organized way to interact with various admin functions while maintaining clarity and reducing the overall complexity of the driver code.
 
 
 = Control Flow of the Application
@@ -175,13 +219,38 @@ The admin operations are:
 - View all Transactions
 - View pending Transactions
 
-Most of these functions just perform simple CRUD SQL queries and return the output (if any). The custom functionality which is implemented specifically for this project is the Issue/Return workflow.
+Most of these functions just perform simple CRUD #footnote[Create, Read, Update, Delete] operations using SQL queries and return the output (if any). The custom functionality which is implemented specifically for this project is the Issue/Return workflow.
 
 == Issuing a Book
 
-The `IssueBook()` function takes in two arguments - `isbn` and `patron_id`. The following database commands take place:
-// 1. Check if 
+The `IssueBook()` function takes in two arguments - `isbn` and `patron_id`. The steps of the Issue workflow are:
 
+- Constraints
+  + `isbn` must link to a specific #Book
+  + `patron_id` must link to a specific #Patron
+  + #Patron must not currently have 3 unreturned books
+  + #Patron must not currently have this book
+- Actions
+  + Update `quantity` of #Book to `quantity - 1`
+  + Create a #Transaction linking the #Patron and the #Book, with the current date as `issue_date`, and with a 7 day time interval, a `return_date`.
+  3. Commit to the Database.
+
+== Returning a Book
+
+Similar to the Issue Book workflow, the `ReturnBook()` function also takes in arguments - `isbn` and `patron_id`.
+
+
+- Constraints
+  + `isbn` must link to a specific #Book
+  + `patron_id` must link to a specific #Patron
+  + #Patron must currently have this book - i.e. There should be one #Transaction such that it is associated with this #Patron and this #Book, and has `returned` set to `FALSE`.
+- Actions
+  + Update `returned = TRUE` and `return_date` to current date of #Transaction.
+  + Update `quantity` of #Book to `quantity + 1`
+  3. Commit to the Database.
+
+
+  
 
 #pagebreak(weak: true)
 
@@ -196,6 +265,9 @@ The `IssueBook()` function takes in two arguments - `isbn` and `patron_id`. The 
 
 = Screenshots
 
+#screenshots
+
+// #read("screenshots/*")
 
 
 #pagebreak(weak: true)
