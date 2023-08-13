@@ -4,8 +4,7 @@
 }
 
 #let field = (it, col: rgb(204, 51, 139)) => box.with(
-    fill: luma(240), inset: 4pt, radius: 5pt,
-    baseline: 4pt,
+    fill: luma(240), outset: (top: 4pt, bottom: 4pt), inset: (left: 4pt, right: 4pt),  radius: 4pt,
   )(text(it, fill: col))
 
 #let name = "Dipam Sen"
@@ -20,7 +19,7 @@
 ) = {
   // Set the document's basic properties.
   set document(author: authors, title: title)
-  set page(numbering: "1", number-align: center)
+  set page(numbering: (p, ..) => if p > 1 {p}, number-align: center)
   set text(font: "", lang: "en", size: 1.6em)
   set text(font: "Atkinson Hyperlegible")
   // show raw: it => {
@@ -52,32 +51,36 @@
   // }
   {
     set text(1.3em)
-    v(0.6fr)
-    if logo != none {
-      align(right, image(logo, width: 26%))
-    }
-    v(9.6fr)
-  {
 
-    v(1.2em, weak: true)
-    text(1.1em, date)
-    v(1.2em, weak: true)
-    text(2em, weight: 700, title)
-    v(1.2em, weak: true)
-  }
-    smallcaps("Computer Science Project")
-    v(2em)
-  
-    // Author information.
+    {
+      set align(center)
+      v(1.2em, weak: true)
+      text(1.1em, weight: 600, underline("Amicus International School, Bharuch"))
+      v(3em, weak: true)
+      // title
+      // 
+      text(1.1em, weight: 700)[PROJECT REPORT ON]
+      v(1.4em, weak: true)
+      text(2em, strong[SOFTWARE FOR])
+      v(1.4em, weak: true)
+      text(2em, weight: 700)[Library Management]
+      v(2em, weak: true)
+      text(1.6em, "Computer Science Project")
+      v(2em)
     pad(
       top: 0.7em,
+    [Created By:]+
       // right: 20%,
-      grid(
-        columns: 3, //(1fr,) * calc.min(3, authors.len()),
-        gutter: 1em,
-        ..authors.map(author => align(start, text(author, size: 0.9em, weight: "black"))),
-      ),
+      box(grid(
+        // columns: 2, //(30pt, 1fr, 1fr, 1fr), //(1fr,) * calc.min(3, authors.len()),
+        gutter: 0.7em,
+        ..authors.map(author => align(start, text(author, weight: "black"))),
+      ), baseline:2.2cm, inset: (left: 1em)),
     )
+    
+    }
+    
+    // Author information.
   }
   v(2.4fr)
   pagebreak()
@@ -137,7 +140,10 @@ has been truly invaluable in my growth as a learner.
 
   // Table of contents.
   bigheading("Index")
-  outline(depth: 3, indent: 1em, title: none)
+  {
+    set text(1.2em)
+    outline(depth: 3, indent: 1em, title: none)
+  }  
   pagebreak()
 
 
