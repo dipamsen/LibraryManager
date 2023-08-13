@@ -2,7 +2,7 @@ import mysql.connector
 from tabulate import tabulate
 
 db = mysql.connector.connect(
-    user="root", host="localhost", passwd="password", database="library"
+    user="root", host="localhost", passwd="dipam2006", database="library"
 )
 cursor = db.cursor()
 cursor.execute("USE library")
@@ -14,7 +14,7 @@ def TrySQLCommand(query, values=None):
     result = cursor.fetchall()
     if cursor.rowcount == 0:
         raise ValueError("No matching records found.")
-    return result
+    return result, [desc[0] for desc in cursor.description]
 
 
 # check for valid ISBN number
@@ -224,6 +224,24 @@ def IssueBook(ISBN, ID):
     if SearchPatronByID(ID) == 1:
         print("Patron ID not found. Check and Try Again!")
         return 1
+    # check if patron has less than 3 unreturned books
+    check1 = (
+        "SELECT COUNT(*) FROM transactions WHERE patron_id = %s AND returned IS FALSE"
+    )
+    cursor.execute(check1, (ID,))
+    if cursor.fetchone()[0] >= 3:
+        print(
+            "PATRON HAS ALREADY ISSUED 3 BOOKS! \nPLEASE RETURN A BOOK AND TRY AGAIN!"
+        )
+        return 1
+
+    # check if patron currently has this book
+    check2 = "SELECT * FROM transactions WHERE patron_id = %s AND book_isbn = %s AND returned IS FALSE"
+    cursor.execute(check2, (ID, ISBN))
+    if cursor.rowcount > 0:
+        print("PATRON HAS ALREADY ISSUED THIS BOOK!")
+        return 1
+
     query = "UPDATE books SET quantity = quantity - 1 WHERE isbn = %s AND quantity >= 1"
     cursor.execute(query, (ISBN,))
     if cursor.rowcount == 1:
@@ -304,7 +322,7 @@ def EditPatron(ID):
             tabulate(
                 Search,
                 headers=["ID", "Email", "Name", "Subscription Date"],
-                tablefmt="psql",
+                tablefmt="pretty",
             )
         )
         print("OPTIONS : ")
@@ -383,7 +401,7 @@ def SearchPatronByName(Patron_Name):
 
 
 def ViewTransactions():
-    query = "SELECT * FROM transactions"
+    query = 'SELECT t.id "ID", b.title "Book", p.name "Issued By", t.issue_date "Issued On", t.due_date "Due On", IFNULL(t.return_date, "Not Returned") "Returned On" FROM transactions t JOIN books b ON t.book_isbn = b.isbn JOIN patrons p ON t.patron_id = p.id ORDER BY t.book_isbn, t.issue_date;'
     cursor.execute(query)
     # Fetch column names
     columns = [desc[0] for desc in cursor.description]

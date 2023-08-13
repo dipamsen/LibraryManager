@@ -14,7 +14,7 @@
 
 = Introduction
 
-This application aims to streamline the process of issuing and returning books in a library. Its goal is to easily keep track of library transactions and display them with ease. It also allows to update information as well as create and delete data from the database. 
+The Library Manager is designed to facilitate the process of book issuance and returns in a library environment. This application offers a solution for tracking transactions, simplifying administrative tasks, and presenting data in a clear manner. Users can efficiently manage the database by updating, creating, and removing records. The goal is to make the application mor accessible by streamlining library operations and transaction management.
 
 
 = Technologies used
@@ -77,14 +77,50 @@ The #Transactions table records interactions between patrons and books, includin
 - `return_date`: The date when the book was actually returned (if returned).
 - `returned`: A boolean indicating whether the book has been returned (default is false).
 
+#pagebreak(weak: true)
+
+= Control Flow of the Application
+
+Initially on running the app, it provides with two options #sym.dash.em to use the application as an *Admin* or an *User* (Patron). The major functionality of an app is only accessible to the admin for obvious reasons, and the user can only perform READ operations.
+
+The admin operations are:
+
+- Add/Remove/Edit a Book
+- Add/Remove/Edit a Patron
+- View Books/Patrons
+- Issue/Return a Book
+- View all Transactions
+- View pending Transactions
 
 
 
 #pagebreak(weak: true)
 
-= Code
+= Source Code
 
 // The complete source code for the application as well as this document is accessible on the GitHub repository for the project:
 // https://github.com/dipamsen/LibraryManager
 
 #code
+
+#pagebreak(weak: true)
+
+= Screenshots
+
+
+
+#pagebreak(weak: true)
+
+
+#let include-bib(key) = [
+  #set text(0pt)
+  #place(cite(key))
+]
+
+#for key in yaml("works.yml").keys() {
+  include-bib(key)
+}
+
+#bigheading("Bibliography")
+
+#bibliography("works.yml", title: none)

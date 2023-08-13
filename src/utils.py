@@ -1,3 +1,6 @@
+from colorama import Fore, Back, Style
+
+
 def ask_choices(choices):
     """
     Ask the user to choose between a list of choices.
@@ -17,3 +20,23 @@ def ask_choices(choices):
         except ValueError:
             print("Invalid choice. Please try again.")
             continue
+
+
+def highlight(text):
+    """
+    Highlight a text.
+
+    :param text: The text to highlight.
+    :return: The highlighted text.
+    """
+    return f"{Back.WHITE}{Fore.RED}{text}{Style.RESET_ALL}"
+
+
+def bold(text):
+    """
+    Bold a text.
+
+    :param text: The text to bold.
+    :return: The bolded text.
+    """
+    return f"{Style.BRIGHT}{text}{Style.RESET_ALL}"
