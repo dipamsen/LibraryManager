@@ -2,7 +2,7 @@ import mysql.connector
 from tabulate import tabulate
 
 db = mysql.connector.connect(
-    user="root", host="localhost", passwd="dipam2006", database="library"
+    user="root", host="localhost", passwd="password", database="library"
 )
 cursor = db.cursor()
 cursor.execute("USE library")

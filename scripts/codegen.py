@@ -10,6 +10,10 @@ def slugify(text):
     return text.lower().replace(" ", "-").replace(".", "-")
 
 
+def reptabs(text):
+    return text.replace("    ", "   ")
+
+
 if __name__ == "__main__":
     codes = {}
     root, dirs, files = next(os.walk("src"))
@@ -22,7 +26,7 @@ if __name__ == "__main__":
     
 #let code = [\n\n  #set text(0.67em)\n\n"""
     for filename, content in codes.items():
-        code += f"== `{filename}` <{slugify(filename)}> \n\n#sourcecode(numbering: none)[```{filename.rpartition('.')[-1]}\n{content}\n```]\n\n"
+        code += f"== `{filename}` <{slugify(filename)}> \n\n#sourcecode(numbering: none)[```{filename.rpartition('.')[-1]}\n{reptabs(content)}\n```]\n\n"
     code += "]"
 
     with open("docs/code.typ", "w") as f:
