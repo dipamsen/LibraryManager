@@ -11,7 +11,7 @@ def slugify(text):
 
 
 def reptabs(text):
-    return text.replace("    ", "   ")
+    return text.replace("    ", "  ")
 
 
 if __name__ == "__main__":
