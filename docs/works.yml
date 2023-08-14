@@ -9,3 +9,44 @@ connector:
   title:
     sentence-case: MySQL Connector/Python Developer's Guide
   url: https://dev.mysql.com/doc/connector-python/en/
+
+# inspect:
+#   type: Article
+#   title:
+#     sentence-case: "'inspect' module"
+#   url: https://docs.python.org/3/library/inspect.html
+#   parent:
+#     title: Python Documentation
+#     url: https://docs.python.org
+
+tabulate:
+  type: Web
+  title:
+    sentence-case: tabulate
+  description: "Pretty Print"
+  url: https://pypi.org/project/tabulate/
+  parent:
+    type: Web
+    title:
+      title-case: "Python Package Index (PyPI)"
+    url: https://pypi.org/
+
+tkinter:
+  type: Web
+  title:
+    sentence-case: tkinter.simpledialog
+  url: "https://docs.python.org/3/library/dialog.html"
+  parent:
+    type: Web
+    title:
+      title-case: "The Python Standard Library Documentation"
+
+time:
+  type: Web
+  title:
+    sentence-case: time
+  url: "https://docs.python.org/3/library/time.html"
+  parent:
+    type: Web
+    title:
+      title-case: "The Python Standard Library Documentation"

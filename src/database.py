@@ -233,13 +233,14 @@ def IssueBook(ISBN, ID):
     )
     cursor.execute(check1, (ID,))
     if cursor.fetchone()[0] >= 3:
-        print("PATRON HAS ALREADY ISSUED 3 BOOKS!")
+        print(
+            "PATRON HAS ALREADY ISSUED 3 BOOKS! \nPLEASE RETURN A BOOK AND TRY AGAIN!"
+        )
         return 1
 
     # check if patron currently has this book
     check2 = "SELECT * FROM transactions WHERE patron_id = %s AND book_isbn = %s AND returned IS FALSE"
     cursor.execute(check2, (ID, ISBN))
-    cursor.fetchall()
     if cursor.rowcount > 0:
         print("PATRON HAS ALREADY ISSUED THIS BOOK!")
         return 1

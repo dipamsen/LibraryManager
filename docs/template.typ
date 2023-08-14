@@ -141,7 +141,7 @@ has been truly invaluable in my growth as a learner.
   // Table of contents.
   bigheading("Index")
   {
-    set text(1.2em)
+    set text(1.1em)
     outline(depth: 3, indent: 1em, title: none)
   }  
   pagebreak()

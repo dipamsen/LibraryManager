@@ -29,6 +29,6 @@ CREATE TABLE transactions (
     due_date DATE NOT NULL,
     return_date DATE,
     returned BOOLEAN NOT NULL DEFAULT FALSE,
-    FOREIGN KEY (book_isbn) REFERENCES books(isbn) ON DELETE CASCADE,
-    FOREIGN KEY (patron_id) REFERENCES patrons(id) ON DELETE CASCADE
+    FOREIGN KEY (book_isbn) REFERENCES books(isbn) ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (patron_id) REFERENCES patrons(id) ON DELETE CASCADE ON UPDATE CASCADE
 );

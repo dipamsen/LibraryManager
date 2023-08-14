@@ -2,7 +2,7 @@
 # Author: Dipam Sen and Arghya Kumar
 
 import data as db
-from utils import ask_choices, highlight, bold
+from additional.utils import ask_choices, highlight, bold
 import inspect
 from tabulate import tabulate
 
