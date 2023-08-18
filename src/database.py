@@ -241,6 +241,7 @@ def IssueBook(ISBN, ID):
     # check if patron currently has this book
     check2 = "SELECT * FROM transactions WHERE patron_id = %s AND book_isbn = %s AND returned IS FALSE"
     cursor.execute(check2, (ID, ISBN))
+    cursor.fetchall()
     if cursor.rowcount > 0:
         print("PATRON HAS ALREADY ISSUED THIS BOOK!")
         return 1
@@ -252,7 +253,7 @@ def IssueBook(ISBN, ID):
             issue = "INSERT INTO transactions (book_isbn, patron_id, issue_date, due_date) VALUES (%s, %s, CURDATE(), DATE(CURDATE() + 7))"
             cursor.execute(issue, (ISBN, ID))
             db.commit()
-            print("Book issued successfully!")
+            # print("Book issued successfully!")
         except:
             db.rollback()
             print("Book issue failed!")
@@ -287,7 +288,7 @@ def ReturnBook(ISBN, ID):
     cursor.execute(query, (ISBN,))
     db.commit()
 
-    print("Book returned successfully!")
+    # print("Book returned successfully!")
 
 
 def AddPatron(ID, Email, Patron_Name, Subcription_Date):

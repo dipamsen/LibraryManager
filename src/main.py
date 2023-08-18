@@ -117,7 +117,8 @@ if choice >= 1 and choice <= 2:
                                                 res = db.SearchBookByISBN(ISBN)
                                                 if res != 1:
                                                     data, columns = res
-                                                    print(tabulate(data, headers=columns, tablefmt="pretty"))
+                                                    print(tabulate(data, headers=columns, 
+                                                                   tablefmt="pretty"))
                                                 else:
                                                     print("\t\t\t\tBook not found!")
 
@@ -126,7 +127,8 @@ if choice >= 1 and choice <= 2:
                                                 res = db.SearchBookByAuthor(Author)
                                                 if res != 1:
                                                     data, columns = res
-                                                    print(tabulate(data, headers=columns, tablefmt="pretty"))
+                                                    print(tabulate(data, headers=columns, 
+                                                                   tablefmt="pretty"))
                                                 else:
                                                     print("\t\t\t\tBook not found!")
 
@@ -135,7 +137,8 @@ if choice >= 1 and choice <= 2:
                                                 res = db.SearchBookByTitle(Title)
                                                 if res != 1:
                                                     data, columns = res
-                                                    print(tabulate(data, headers=columns, tablefmt="pretty"))
+                                                    print(tabulate(data, headers=columns, 
+                                                                   tablefmt="pretty"))
                                                 else:
                                                     print("\t\t\t\tBook not found!")
                                                     break
@@ -144,7 +147,8 @@ if choice >= 1 and choice <= 2:
                                                 res = db.SearchBookByGenre(Genre)
                                                 if res != 1:
                                                     data, columns = res
-                                                    print(tabulate(data, headers=columns, tablefmt="pretty"))
+                                                    print(tabulate(data, headers=columns, 
+                                                                   tablefmt="pretty"))
                                                 else:
                                                     print("\t\t\t\tBook not found!")
                                                     break
@@ -200,14 +204,15 @@ if choice >= 1 and choice <= 2:
                                         print("\t\t\t(2) By Name")
                                         print("\t\t\t(3) Return to previous menu")
                                         print("\t\t\t(4) Exit")
-                                        x = numinput("\t\t\tPLEASE ENTER THE OPTION NUMBER : ")
+                                        x = numinput("\t\t\tPLEASE ENTER THE OPTION NUMBER: ")
                                         if x >= 1 and x <= 4:
                                             if x == 1:
                                                 ID = triminput("\t\t\tID : ")
                                                 res = db.SearchPatronByID(ID)
                                                 if res != 1:
                                                     data, columns = res
-                                                    print(tabulate(data, headers=columns, tablefmt="pretty"))
+                                                    print(tabulate(data, headers=columns, 
+                                                                   tablefmt="pretty"))
                                                 else:
                                                     print("\t\t\t\tPatron not found!")
                                                     break
@@ -216,7 +221,8 @@ if choice >= 1 and choice <= 2:
                                                 res = db.SearchPatronByName(Name)
                                                 if res != 1:
                                                     data, columns = res
-                                                    print(tabulate(data, headers=columns, tablefmt="pretty"))
+                                                    print(tabulate(data, headers=columns, 
+                                                                   tablefmt="pretty"))
                                                 else:
                                                     print("\t\t\t\tPatron not found!")
                                                     break
@@ -349,7 +355,8 @@ if choice >= 1 and choice <= 2:
                         res = db.Query(query, (ID,))
                         if res != 1:
                             data, columns = res
-                            print(tabulate(data, headers=columns, tablefmt="pretty", stralign="center"))
+                            print(tabulate(data, headers=columns, tablefmt="pretty", 
+                                           stralign="center"))
                         else:
                             print("\t\t\t\tNo books issued!")
                     elif acc == 4:
