@@ -32,4 +32,4 @@ To run the project, run the following command:
 make run
 ```
 
-Alternatively, you can [download the source files as a ZIP archive](/library.zip) and run the `main.py` file.
+Alternatively, you can [download the source files as a ZIP archive](/library.zip?raw=true) and run the `main.py` file.
