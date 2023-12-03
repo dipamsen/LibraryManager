@@ -1,0 +1,3 @@
+{
+    "yapf.args": ["--style", "{based_on_style: pep8, indent_width: 2, column_limit: 200, disable_ending_comma_heuristic: true, blank_lines_around_top_level_definition: 1}"]
+}

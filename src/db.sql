@@ -6,7 +6,7 @@ USE library;
 
 CREATE TABLE books (
     isbn VARCHAR(13) NOT NULL PRIMARY KEY,
-    title VARCHAR(50) NOT NULL,
+    title VARCHAR(100) NOT NULL,
     author VARCHAR(50) NOT NULL,
     quantity INT NOT NULL,
     genre ENUM("Fiction", "Non-Fiction") NOT NULL
