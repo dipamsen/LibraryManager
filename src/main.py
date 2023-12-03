@@ -55,7 +55,7 @@ if choice >= 1 and choice <= 2:
               print("\t\t OPTIONS : ")
               print("\t\t(1) Add a book")
               print("\t\t(2) Remove a book")
-              print("\t\t(3) Update a book")
+              print("\t\t(3) Update book quantity")
               print("\t\t(4) Issue a Book")
               print("\t\t(5) Return a Book")
               print("\t\t(6) Search a Book")
@@ -183,12 +183,15 @@ if choice >= 1 and choice <= 2:
                     print("\t\t\tIncorrect date entered!")
                     break
                   db.AddPatron(ID, Email, Patron_Name, Subcription_Date)
+                  print("\t\tPatron added successfully!")
                 elif opt == 2:
                   ID = triminput("\t\tID : ")
                   db.RemovePatron(ID)
+                  print("\t\tPatron removed successfully!")
                 elif opt == 3:
                   ID = triminput("\t\tID : ")
                   db.EditPatron(ID)
+                  print("\t\tPatron updated successfully!")
                 elif opt == 4:
                   while True:
                     print("\t\t\t OPTIONS :")
@@ -276,9 +279,11 @@ if choice >= 1 and choice <= 2:
         print("\t(1) Search a book")
         print("\t(2) View all books")
         print("\t(3) View my issued books")
-        print("\t(4) Exit")
+        print("\t(4) Issue a book")
+        print("\t(5) Return a book")
+        print("\t(6) Exit")
         acc = numinput("\tPLEASE ENTER THE OPTION NUMBER : ")
-        if acc >= 1 and acc <= 4:
+        if acc >= 1 and acc <= 6:
           if acc == 1:
             while True:
               print("\t\t OPTIONS :")
@@ -349,6 +354,16 @@ if choice >= 1 and choice <= 2:
             else:
               print("\t\t\t\tNo books issued!")
           elif acc == 4:
+            ISBN = triminput("\t\tISBN : ")
+            out = db.IssueBook(ISBN, ID)
+            if out != 1:
+              print("\t\tBook issued successfully!")
+          elif acc == 5:
+            ISBN = triminput("\t\tISBN : ")
+            out = db.ReturnBook(ISBN, ID)
+            if out != 1:
+              print("\t\tBook returned successfully!")
+          elif acc == 6:
             exit()
         else:
           print("Incorrect option entered!")

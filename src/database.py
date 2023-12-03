@@ -120,51 +120,21 @@ def SearchBookByGenre(Genre):
     return 1
 
 def EditBook(ISBN):
-  Search, columns = SearchBookByISBN(ISBN)
+  val = SearchBookByISBN(ISBN)
+  if val == 1:
+    print("ISBN number not found. Check and Try Again!")
+    return 1
+  Search, columns = val
+
   if Search == 1:
     return 1
   else:
     print(tabulate(Search, headers=columns, tablefmt="pretty"))
-    print("OPTIONS : ")
-    print("(1) ---> ISBN number")
-    print("(2) ---> Book Author")
-    print("(3) ---> Book Title")
-    print("(4) ---> Quantity")
-    print("(5) ---> Genre")
-    print("(6) ---> Remove book")
-    option = int(input("Enter OPTION NUMBER of what you want to edit : "))
-    if option >= 1 and option <= 6:
-      if option == 1:
-        id = input("ENTER THE NEW ISBN NUMBER OF BOOK : ")
-        vID = ValidateISBN(id)
-        if ISBN != id and vID:
-          query = "UPDATE books SET isbn=%s WHERE isbn=%s"
-          cursor.execute(query, (vID, ISBN))
-          db.commit()
-        else:
-          print("Failed to edit! Try again!")
-          db.rollback()
-          return 1
-      elif option == 2:
-        Author = input("ENTER THE NEW AUTHOR NAME OF THE BOOK : ")
-        cursor.execute("UPDATE books SET author=%s WHERE isbn=%s", (Author, ISBN))
-        db.commit()
-      elif option == 3:
-        Title = input("ENTER THE NEW TITLE OF BOOK : ")
-        cursor.execute("UPDATE books SET title=%s WHERE isbn=%s", (Title, ISBN))
-        db.commit()
-      elif option == 4:
-        quantity = input("ENTER THE QUANTITY OF BOOK AVAILABLE : ")
-        query = "UPDATE books SET quantity= %s WHERE isbn=%s"
-        cursor.execute(query, (quantity, ISBN))
-        db.commit()
-      elif option == 5:
-        genre = input("ENTER THE NEW GENRE OF BOOK : ")
-        query = "UPDATE books SET genre= %s WHERE isbn=%s"
-        cursor.execute(query, (genre, ISBN))
-        db.commit()
-      elif option == 6:
-        RemoveBook(ISBN)
+
+    quantity = input("ENTER THE NEW QUANTITY OF BOOK AVAILABLE : ")
+    query = "UPDATE books SET quantity= %s WHERE isbn=%s"
+    cursor.execute(query, (quantity, ISBN))
+    db.commit()
 
 # Issue Books to Patron and updating the return status
 def IssueBook(ISBN, ID):
@@ -235,18 +205,19 @@ def AddPatron(ID, Email, Patron_Name, Subcription_Date):
 def RemovePatron(ID):
   try:
     deletepatron = "DELETE FROM patrons WHERE id= %s;"
-    TrySQLCommand(deletepatron, (ID, ))
+    cursor.execute(deletepatron, (ID, ))
+    db.commit()
   except ValueError:
     db.rollback()
     return 1
-  db.commit()
 
 def EditPatron(ID):
-  Search = SearchPatronByID(ID)
-  if Search == 1:
+  val = SearchPatronByID(ID)
+  if val == 1:
     return 1
   else:
-    print(tabulate(Search, headers=["ID", "Email", "Name", "Subscription Date"], tablefmt="pretty"))
+    search, headers = val
+    print(tabulate(search, headers=["ID", "Email", "Name", "Subscription Date"], tablefmt="pretty"))
     print("OPTIONS : ")
     print("(1) ---> Patron ID number")
     print("(2) ---> Patron Email")
@@ -258,7 +229,7 @@ def EditPatron(ID):
       if option == 1:
         id = input("ENTER THE NEW 8-DIGIT UNIQUE ID OF PATRON : ")
         if ID != id and len(id) == 8:
-          query = "UPDATE patron SET id= %s WHERE id=%s"
+          query = "UPDATE patrons SET id= %s WHERE id=%s"
           cursor.execute(query, (id, ID))
           db.commit()
         else:
@@ -268,7 +239,7 @@ def EditPatron(ID):
       elif option == 2:
         Email = input("ENTER THE NEW EMAIL OF PATRON : ")
         if "@" in Email and "." in Email:
-          cursor.execute("UPDATE patron SET email= %s WHERE id= %s", (Email, ID))
+          cursor.execute("UPDATE patrons SET email= %s WHERE id= %s", (Email, ID))
           db.commit()
         else:
           print("Enter a VALID EMAIL and Try Again!")
@@ -306,7 +277,7 @@ def ViewTransactions():
              FROM transactions t, books b, patrons p 
              WHERE t.book_isbn = b.isbn 
                AND t.patron_id = p.id 
-             ORDER BY t.book_isbn, t.issue_date;"""
+             ORDER BY t.issue_date, t.book_isbn;"""
   cursor.execute(query)
   columns = [desc[0] for desc in cursor.description]
   data = cursor.fetchall()
@@ -319,7 +290,7 @@ def ViewTransactionsPending():
              WHERE t.book_isbn = b.isbn 
                AND t.patron_id = p.id 
                AND t.returned = FALSE 
-             ORDER BY t.book_isbn, t.issue_date;"""
+             ORDER BY t.issue_date, t.book_isbn;"""
   cursor.execute(query)
   columns = [desc[0] for desc in cursor.description]
   data = cursor.fetchall()
