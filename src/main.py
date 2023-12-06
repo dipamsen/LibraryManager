@@ -3,13 +3,16 @@ import time
 import database as db
 from tabulate import tabulate
 
-def validate_date(date):
+def ValidateDate(date):
   # yyyy-mm-dd
   try:
     time.strptime(date, "%Y-%m-%d")
     return True
   except ValueError:
     return False
+
+def showtable(data, headers):
+  print(tabulate(data, headers=columns, tablefmt="pretty"))
 
 def triminput(*args, **kwargs):
   return input(*args, **kwargs).strip()
@@ -113,7 +116,7 @@ if choice >= 1 and choice <= 2:
                         res = db.SearchBookByISBN(ISBN)
                         if res != 1:
                           data, columns = res
-                          print(tabulate(data, headers=columns, tablefmt="pretty", ))
+                          showtable(data, headers=columns)
                         else:
                           print("\t\t\t\tBook not found!")
 
@@ -122,7 +125,7 @@ if choice >= 1 and choice <= 2:
                         res = db.SearchBookByAuthor(Author)
                         if res != 1:
                           data, columns = res
-                          print(tabulate(data, headers=columns, tablefmt="pretty", ))
+                          showtable(data, headers=columns)
                         else:
                           print("\t\t\t\tBook not found!")
 
@@ -131,7 +134,7 @@ if choice >= 1 and choice <= 2:
                         res = db.SearchBookByTitle(Title)
                         if res != 1:
                           data, columns = res
-                          print(tabulate(data, headers=columns, tablefmt="pretty", ))
+                          showtable(data, headers=columns)
                         else:
                           print("\t\t\t\tBook not found!")
                           break
@@ -140,7 +143,7 @@ if choice >= 1 and choice <= 2:
                         res = db.SearchBookByGenre(Genre)
                         if res != 1:
                           data, columns = res
-                          print(tabulate(data, headers=columns, tablefmt="pretty", ))
+                          showtable(data, headers=columns)
                         else:
                           print("\t\t\t\tBook not found!")
                           break
@@ -179,7 +182,7 @@ if choice >= 1 and choice <= 2:
                   Email = triminput("\t\tEmail : ")
                   Patron_Name = triminput("\t\tPatron Name : ")
                   Subcription_Date = triminput("\t\tEnter Date(YYYY-MM-DD) : ")
-                  if not validate_date(Subcription_Date):
+                  if not ValidateDate(Subcription_Date):
                     print("\t\t\tIncorrect date entered!")
                     break
                   db.AddPatron(ID, Email, Patron_Name, Subcription_Date)
@@ -206,7 +209,7 @@ if choice >= 1 and choice <= 2:
                         res = db.SearchPatronByID(ID)
                         if res != 1:
                           data, columns = res
-                          print(tabulate(data, headers=columns, tablefmt="pretty", ))
+                          showtable(data, headers=columns)
                         else:
                           print("\t\t\t\tPatron not found!")
                           break
@@ -215,7 +218,7 @@ if choice >= 1 and choice <= 2:
                         res = db.SearchPatronByName(Name)
                         if res != 1:
                           data, columns = res
-                          print(tabulate(data, headers=columns, tablefmt="pretty", ))
+                          showtable(data, headers=columns)
                         else:
                           print("\t\t\t\tPatron not found!")
                           break
@@ -300,7 +303,7 @@ if choice >= 1 and choice <= 2:
                   res = db.SearchBookByISBN(ISBN)
                   if res != 1:
                     data, columns = res
-                    print(tabulate(data, headers=columns, tablefmt="psql"))
+                    showtable(data, headers=columns)
                   else:
                     print("\t\t\t\tBook not found!")
                     break
@@ -309,7 +312,7 @@ if choice >= 1 and choice <= 2:
                   res = db.SearchBookByAuthor(Author)
                   if res != 1:
                     data, columns = res
-                    print(tabulate(data, headers=columns, tablefmt="pretty"))
+                    showtable(data, headers=columns)
                   else:
                     print("\t\t\t\tBook not found!")
                     break
@@ -318,7 +321,7 @@ if choice >= 1 and choice <= 2:
                   res = db.SearchBookByTitle(Title)
                   if res != 1:
                     data, columns = res
-                    print(tabulate(data, headers=columns, tablefmt="pretty"))
+                    showtable(data, headers=columns)
                   else:
                     print("\t\t\t\tBook not found!")
                     break
@@ -327,7 +330,7 @@ if choice >= 1 and choice <= 2:
                   res = db.SearchBookByGenre(Genre)
                   if res != 1:
                     data, columns = res
-                    print(tabulate(data, headers=columns, tablefmt="pretty"))
+                    showtable(data, headers=columns)
                   else:
                     db.SearchBookByAuthor(Author)
                 elif x == 5:
@@ -337,11 +340,7 @@ if choice >= 1 and choice <= 2:
           elif acc == 2:
             db.ViewBooks()
           elif acc == 3:
-            query = """SELECT 
-                            b.title "Book", 
-                            p.name "Issued by", 
-                            t.issue_date "Issued On", 
-                            t.due_date "Due Date", 
+            query = """SELECT b.title "Book", p.name "Issued by", t.issue_date "Issued On", t.due_date "Due Date", 
                             IFNULL(t.return_date, \'Not Returned\') \'Returned On\' 
                         FROM transactions t 
                         JOIN books b ON t.book_isbn = b.isbn 
@@ -350,7 +349,11 @@ if choice >= 1 and choice <= 2:
             res = db.Query(query, (ID, ))
             if res != 1:
               data, columns = res
-              print(tabulate(data, headers=columns, tablefmt="pretty", stralign="center", ))
+              print(
+                tabulate(data,
+                         headers=columns,
+                         tablefmt="pretty",
+                         stralign="center"))
             else:
               print("\t\t\t\tNo books issued!")
           elif acc == 4:

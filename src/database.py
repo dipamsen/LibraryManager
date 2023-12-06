@@ -1,7 +1,7 @@
 import mysql.connector
 from tabulate import tabulate
 
-db = mysql.connector.connect(user="root", host="localhost", passwd="dipam2006", database="library")
+db = mysql.connector.connect(user="root", host="localhost", passwd="pass", database="library")
 cursor = db.cursor()
 cursor.execute("USE library")
 
@@ -38,21 +38,6 @@ def ValidateISBN(isbn):
   return False
 
 # Edit Books Table Functions
-# Replace Books
-def ReplaceBook(oISBN, nQuantity, nTITLE, nAUTHOR, nISBN, nGenre):
-  if ValidateISBN(nISBN) == False:
-    print("INVALID ISBN NUMBER!!")
-    return 1
-  try:
-    deletebook = "DELETE FROM books WHERE ISBN= %s"
-    cursor.execute(deletebook, (oISBN, ))
-  except ValueError:
-    db.rollback()
-    return 1
-  newbooks = "INSERT INTO books (quantity, title, author, isbn, genre) VALUES (%s, %s, %s, %s, %s)"
-  cursor.execute(newbooks, (nQuantity, nTITLE, nAUTHOR, nISBN, nGenre))
-  db.commit()
-
 # Add Books
 def AddBook(nQuantity, nTITLE, nAUTHOR, nISBN, nGenre):
   vISBN = ValidateISBN(nISBN)
@@ -198,7 +183,7 @@ def ReturnBook(ISBN, ID):
   db.commit()
 
 def AddPatron(ID, Email, Patron_Name, Subcription_Date):
-  newpatron = ("INSERT INTO patrons (id, email, name, subscription_date) VALUES(%s,%s,%s,%s)")
+  newpatron = ("INSERT INTO patrons (id, email, name, subscription_date) VALUES (%s,%s,%s,%s)")
   cursor.execute(newpatron, (ID, Email, Patron_Name, Subcription_Date))
   db.commit()
 
@@ -284,8 +269,7 @@ def ViewTransactions():
   print(tabulate(data, headers=columns, tablefmt="pretty"))
 
 def ViewTransactionsPending():
-  query = """SELECT t.id "ID", b.title "Book", p.name "Issued By", t.issue_date "Issued On", 
-                    t.due_date "Due On", IFNULL(t.return_date, "Not Returned") "Returned On" 
+  query = """SELECT t.id "ID", b.title "Book", p.name "Issued By", t.issue_date "Issued On", t.due_date "Due On", IFNULL(t.return_date, "Not Returned") "Returned On" 
              FROM transactions t, books b, patrons p 
              WHERE t.book_isbn = b.isbn 
                AND t.patron_id = p.id 
