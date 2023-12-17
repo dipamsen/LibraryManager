@@ -21,13 +21,23 @@ books and patrons in an organised way. The user can efficiently manage the
 database by creating, updating and removing records. The goal is to facilitate
 library operations by using technology to manage them conveniently.
 
-The *Library Manager* Application is a command line application (CLI) which allows users to perform certain library operations. The application can be accessed by both the Admin and the Patrons (users/members) of the library.
+The *Library Manager* Application is a command line application (CLI) which
+allows users to perform certain library operations. The application can be
+accessed by both the Admin and the Patrons (users/members) of the library.
 
-Users login to the application by providing their respective password (admin) or ID (patron), upon which a list of functions are presented. Users can select their desired function by entering the corresponding number. The application then prompts the user for the necessary inputs, and executes the function. The output is then displayed to the user.
+Users login to the application by providing their respective password (admin) or
+ID (patron), upon which a list of functions are presented. Users can select
+their desired function by entering the corresponding number. The application
+then prompts the user for the necessary inputs, and executes the function. The
+output is then displayed to the user.
 
-The library administrator can add, update or remove book records, and also update patron information. Furthermore, the admin can issue and return books, as well as view all transactions, with due dates and return status.
+The library administrator can add, update or remove book records, and also
+update patron information. Furthermore, the admin can issue and return books, as
+well as view all transactions, with due dates and return status.
 
-The patron can view all books, search for books, and view their own transactions. They can also issue and return books, and view their pending transactions.
+The patron can view all books, search for books, and view their own
+transactions. They can also issue and return books, and view their pending
+transactions.
 
 #pagebreak(weak: true)
 
@@ -52,11 +62,14 @@ The patron can view all books, search for books, and view their own transactions
 
 #v(1cm)
 *Scope of Improvement*
-- SQL Server can be hosted on a server machine, allowing for Client-Server networking and accessibility.
+- SQL Server can be hosted on a server machine, allowing for Client-Server
+  networking and accessibility.
 
-- Third party modules like `inquirer` can be used to create better CLI interfaces rather than implementing a menu based interface.
+- Third party modules like `inquirer` can be used to create better CLI interfaces
+  rather than implementing a menu based interface.
 
-- A GUI or web app can be created to make the application more user friendly and accessible.
+- A GUI or web app can be created to make the application more user friendly and
+  accessible.
 
 #pagebreak(weak: true)
 
@@ -178,20 +191,20 @@ The application is decomposed into smaller components, which include:
 All database queries are isolated inside a separate file, #link(<database-py>, field(strong(`database.py`), col: black)).
 
 #figure(code[```py
-        # database.py
-        
-        def IssueBook(isbn, patron_id):
-          ...
-        
-        def ReturnBook(isbn, patron_id):
-          ...
-        
-        def ViewTransactions():
-          ...
-        
-        ...
-        
-        ```], caption: "Function decomposition of database functions")
+              # database.py
+              
+              def IssueBook(isbn, patron_id):
+                ...
+              
+              def ReturnBook(isbn, patron_id):
+                ...
+              
+              def ViewTransactions():
+                ...
+              
+              ...
+              
+              ```], caption: "Function decomposition of database functions")
 
 These functions use the `mysql.connecter` library to connect to the MySQL
 database and query the database, and also return output and report errors
@@ -202,41 +215,41 @@ which creates a menu based UI (within the terminal) for interacting with these
 database functions.
 
 #figure(code[```py
-        # main.py
-        
-        print("Welcome to the Library Manager!!")
-        print("(1) ADMIN")
-        print("(2) USER")
-        choice = int(input("Enter your choice: "))
-        
-        if choice == 1:
-          # admin
-          input("Enter password")
-          ...
-        elif choice == 2:
-          # patron
-          input("Enter patron ID")
-          ...
-        
-          ```], caption: "Frontend code for interacting with the database")
+              # main.py
+              
+              print("Welcome to the Library Manager!!")
+              print("(1) ADMIN")
+              print("(2) USER")
+              choice = int(input("Enter your choice: "))
+              
+              if choice == 1:
+                # admin
+                input("Enter password")
+                ...
+              elif choice == 2:
+                # patron
+                input("Enter patron ID")
+                ...
+              
+                ```], caption: "Frontend code for interacting with the database")
 
 Inside each conditional, the menu options are listed, and the user is prompted
 for their choice. At the innermost level, the database functions are called, and
 the output is shown.
 
 #figure(code[```py
-        # main.py
-        
-        while True: 
-          opt = int(input("\tEnter your choice: "))
-          ...
-          elif opt == 5: # return book
-            ISBN = input("\t\tISBN : ")
-            ID = input("\t\tID of the patron: ")
-            db.ReturnBook(ISBN, ID)
-            print("\t\tBook returned successfully!")
-        
-          ```], caption: "Calling database functions in the frontend")
+              # main.py
+              
+              while True: 
+                opt = int(input("\tEnter your choice: "))
+                ...
+                elif opt == 5: # return book
+                  ISBN = input("\t\tISBN : ")
+                  ID = input("\t\tID of the patron: ")
+                  db.ReturnBook(ISBN, ID)
+                  print("\t\tBook returned successfully!")
+              
+                ```], caption: "Calling database functions in the frontend")
 // #figure(sourcecode()[
 //   ```py
 // # main.py
@@ -292,8 +305,8 @@ the output is shown.
 
 Upon launching the app, two options are presented: utilizing the application as
 an admin or as a user (patron). The primary functionalities of the app are
-exclusively accessible to the admin, for evident reasons. On the other hand, the
-user is limited to performing a few read operations.
+exclusively accessible to the admin. On the other hand, the
+user is limited to performing a few read and write operations pertaining to themselves.
 
 The admin operations are:
 
@@ -351,67 +364,79 @@ arguments - `isbn` and `patron_id`.
 
 #[
   #set heading(outlined: false)
-
-
-The following modules are used in the application:
-
-== *`mysql.connector`*
-
-MySQL Connector/Python is a standardized database driver for Python platforms, used to connect to the MySQL database and execute queries.
-
-- `connector.connect()`: Connects to the MySQL database using the specified credentials.
-- `connector.cursor()`: Creates a cursor object, which is used to execute queries.
-- `cursor.execute()`: Executes the specified SQL query.
-- `cursor.fetchall()`: Returns all rows of a query result.
-- `cursor.commit()`: Commits the changes to the database.
-
-== *`tabulate`*
-
-Tabulate is a Python library used for printing tabular data in the terminal.
-
-- `tabulate()`: Prints the specified data in a tabular format.
-
-== *`tkinter.simpledialog`*
-
-Used for creating simple modal dialogs for user input.
-
-- `simpledialog.askstring()`: Creates a dialog box with a text field, and returns the input.
-
+   
+   
+  The following external modules are used in the application:
+   
+  == *`mysql.connector`*
+   
+  MySQL Connector/Python is a standardized database driver for Python platforms,
+  used to connect to the MySQL database and execute queries.
+  - `connector.connect()`: Connects to the MySQL database using the specified
+    credentials.
+  - `connector.cursor()`: Creates a cursor object, which is used to execute queries.
+  - `cursor.execute()`: Executes the specified SQL query.
+  - `cursor.fetchall()`: Returns all rows of a query result.
+  - `cursor.commit()`: Commits the changes to the database.
+   
+  == *`tabulate`*
+   
+  Tabulate is a Python library used for printing tabular data in the terminal.
+  - `tabulate()`: Prints the specified data in a tabular format.
+   
+  == *`tkinter.simpledialog`*
+   
+  Used for creating simple modal dialogs for user input.
+  - `simpledialog.askstring()`: Creates a dialog box with a text field, and returns
+    the input.
+   
+  == *`time`*
+   
+  Performing time access and conversions in Python.
+  - `time.strptime()`: Parses a string representing a datetime according to a
+    format.
+  - `time.sleep()`: Suspends execution for the given number of seconds.
+   
 ]
 
 #pagebreak(weak: true)
 
 #[
-#set par(justify: false)
-
-= User Defined Functions
-#set text(0.95em)
-
-In #link(<database-py>, field(strong(`database.py`), col: black)), different functions for performing database operations are defined.
-- `AddBook()`: Adds a new book to the database.
-- `RemoveBook()`: Removes a book from the database.
-- `SearchBookByISBN()`, `SearchBookByTitle()`, `SearchBookByAuthor()`, `SearchBookByGenre()`: Searches for a book by the specified criteria.
-- `EditBook()`: Edits the details of a book. (quantity)
-- `IssueBook()`: Issues a book to a patron.
-- `ReturnBook()`: Returns a book from a patron.
-- `AddPatron()`: Adds a new patron to the database.
-- `RemovePatron()`: Removes a patron from the database.
-- `EditPatron()`: Edits the details of a patron.
-- `SearchPatronByID()`, `SearchPatronByName()`: Searches for a patron by the specified criteria.
-- `ViewTransactions()`: Views all transactions.
-- `ViewPendingTransactions()`: Views all pending transactions.
-- `ViewBooks()`: Views all books.
-- `ViewPatrons()`: Views all patrons.
-
-Additionally, there are some helper functions for common tasks to avoid code repetition.
-
-- `ValidateISBN()`: Checks if the given ISBN is valid by using check digits.
-- `ValidateDate()`: Checks if the given date is in valid format.
-- `TrySQLCommand()` : Executes the given SQL command and returns the output along with column headers.
-- `showtable()`: Displays the given data in a tabular format.
-- `triminput()`: Takes user input and removes leading and trailing whitespaces.
-- `numinput()`: Takes valid numerical input from the user.
-
+  #set par(justify: false)
+   
+  = User Defined Functions
+  #set text(0.95em)
+   
+  In #link(<database-py>, field(strong(`database.py`), col: black)), different
+  functions for performing database operations are defined.
+  - `AddBook()`: Adds a new book to the database.
+  - `RemoveBook()`: Removes a book from the database.
+  - `SearchBookByISBN()`, `SearchBookByTitle()`, `SearchBookByAuthor()`,
+    `SearchBookByGenre()`: Searches for a book by the specified criteria.
+  - `EditBook()`: Edits the details of a book. (quantity)
+  - `IssueBook()`: Issues a book to a patron.
+  - `ReturnBook()`: Returns a book from a patron.
+  - `AddPatron()`: Adds a new patron to the database.
+  - `RemovePatron()`: Removes a patron from the database.
+  - `EditPatron()`: Edits the details of a patron.
+  - `SearchPatronByID()`, `SearchPatronByName()`: Searches for a patron by the
+    specified criteria.
+  - `ViewTransactions()`: Views all transactions.
+  - `ViewPendingTransactions()`: Views all pending transactions.
+  - `ViewBooks()`: Views all books.
+  - `ViewPatrons()`: Views all patrons.
+   
+  Additionally, there are some helper functions for common tasks to avoid code
+  repetition.
+   
+  - `ValidateISBN()`: Checks if the given ISBN is valid by using check digits.
+  - `ValidateDate()`: Checks if the given date is in valid format.
+  - `TrySQLCommand()` : Executes the given SQL command and returns the output along
+    with column headers.
+  - `showtable()`: Displays the given data in a tabular format.
+  - `triminput()`: Takes user input and removes leading and trailing whitespaces.
+  - `numinput()`: Takes valid numerical input from the user.
+   
 ]
 
 #pagebreak(weak: true)

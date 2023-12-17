@@ -16,8 +16,8 @@
   radius: 4pt,
 )(text(it, fill: col))
 
-#let name = "Arghya Kumar"
- 
+#let name = "Maanya Kansara"
+#let section = if name.contains("Kansara"){"C" } else {"B"}
  
 #let project(title: "", authors: (), date: none, logo: none, body) = {
   // Set the document's basic properties.
@@ -91,7 +91,7 @@
         [Name:],
         name,
         [Class:],
-        "XII-B",
+        "XII-" + section,
         [Roll No.:],
         [],
       )
@@ -132,7 +132,7 @@
         hyphenate: false,
         tracking: 1pt,
       )[
-        This is to certify that #dsg *#name* of *Class XII-B (Science)*, has
+        This is to certify that #dsg *#name* of *Class XII-#section (Science)*, has
         successfully completed the *Computer Science (083)* investigatory project on the
         topic *#title.slice(18)* within the stipulated time frame with sincerity and
         devotion, under the guidance of Mrs. Arpita Bhoi during the academic year
